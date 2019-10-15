@@ -26,7 +26,7 @@ class MultiArtistEvents
     end
 
     results = {
-      'artsit_ids' => @artist_ids,
+      'artist_ids' => @artist_ids,
       'events'     => events,
       'count'      => events.length
     }
