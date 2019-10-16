@@ -1,7 +1,6 @@
 require 'httparty'
 
 class MultiArtistEvents
-  
   def self.run(artist_ids, api_key)
     task = MultiArtistEvents.new(artist_ids, api_key)
     task.get_events
@@ -10,25 +9,23 @@ class MultiArtistEvents
   include HTTParty
   base_uri "https://api.songkick.com"
 
-  attr_reader :events
-
   def initialize(artist_ids, api_key)
     @artist_ids = artist_ids
     @api_key    = api_key
     @options    = { query: { apikey: api_key } }
-    @events     = []
+    @events     = {}
   end
 
   def get_events
     @artist_ids.each do |id|
       response = request(id)
-      events.push(response.parsed_response["resultsPage"]["results"]["event"]).flatten!
+      @events[id] = (response.parsed_response["resultsPage"]["results"]["event"])
     end
 
     results = {
       'artist_ids' => @artist_ids,
-      'events'     => events,
-      'count'      => events.length
+      'artist_count' => @artist_ids.length,
+      'events' => @events
     }
 
     results
@@ -37,6 +34,7 @@ class MultiArtistEvents
   private
 
   def request(id)
+    puts "~~~~~ Fetching events for artist #{id} ~~~~~"
     artist_events_slug = "/api/3.0/artists/#{id}/calendar.json"
     self.class.get(artist_events_slug, @options)
   end
